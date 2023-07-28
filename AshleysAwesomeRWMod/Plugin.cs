@@ -1,12 +1,13 @@
 ﻿using System.Reflection;
 using System.Security.Permissions;
 using BepInEx;
+using HUD;
 using MonoMod.RuntimeDetour;
 
 [assembly: SecurityPermission(SecurityAction.RequestMinimum, SkipVerification = true)]
 namespace AshleysAwesomeRWMod
 {
-    [BepInPlugin("ashleyn.manual_dialogue_progression", "Manual Dialogue Progression", "1.0")]
+    [BepInPlugin("ashleyn.manual_dialogue_progression", "Manual Dialogue Progression", "1.1")]
     public class Plugin : BaseUnityPlugin
     {
         public static Plugin instance; 
@@ -17,6 +18,7 @@ namespace AshleysAwesomeRWMod
 
         public bool dialogOnScreen;
         public bool dialogShouldTerminate;
+        public DialogBox dialogBox;
 
         public void OnEnable()
         {
@@ -34,7 +36,18 @@ namespace AshleysAwesomeRWMod
             On.HUD.DialogBox.Update                         += DialogBoxHooks.DialogBox_Update; 
             On.MoreSlugcats.ChatLogDisplay.Draw             += ChatLogDisplayHooks.ChatLogDisplay_Draw;
             // pauses the rain timer if dialogue is on screen
-            On.RainWorldGame.AllowRainCounterToTick         += RainWorldGame_AllowRainCounterToTick; 
+            On.RainWorldGame.AllowRainCounterToTick         += RainWorldGame_AllowRainCounterToTick;
+            // prevents the death screen from triggering while dialogue is on screen
+            On.HUD.TextPrompt.Update += TextPrompt_Update;
+            // bug fix: ending a cycle while dialogue is on screen prevents shelters from opening
+            On.ProcessManager.PreSwitchMainProcess += ProcessManager_PreSwitchMainProcess;
+        }
+
+        private void TextPrompt_Update(On.HUD.TextPrompt.orig_Update orig, TextPrompt self)
+        {
+            if (self.gameOverMode && (dialogOnScreen || dialogShouldTerminate))
+                self.restartNotAllowed++;
+            orig(self);
         }
 
         public static bool Player_RevealMap_get(orig_RevealMap orig, Player self)
@@ -47,6 +60,20 @@ namespace AshleysAwesomeRWMod
         {
             if (dialogOnScreen) return false;
             return orig(self);
+        }
+
+        private void ProcessManager_PreSwitchMainProcess(On.ProcessManager.orig_PreSwitchMainProcess orig, ProcessManager self, ProcessManager.ProcessID ID)
+        {
+            dialogOnScreen = false;
+            dialogShouldTerminate = false;
+            if (dialogBox != null)
+            {
+                // force the dialog box to go kaput
+                dialogShouldTerminate = true;
+                dialogBox.messages.Clear();
+                dialogBox.Update();
+            }
+            orig(self, ID);
         }
     }
 }

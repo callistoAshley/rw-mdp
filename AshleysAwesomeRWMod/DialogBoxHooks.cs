@@ -8,6 +8,7 @@ namespace AshleysAwesomeRWMod
         public static void DialogBox_InitNextMessage(On.HUD.DialogBox.orig_InitNextMessage orig, DialogBox self)
         {
             Plugin.instance.dialogOnScreen = true;
+            Plugin.instance.dialogBox = self;
             orig(self);
         }
 
@@ -16,6 +17,7 @@ namespace AshleysAwesomeRWMod
             if (self.CurrentMessage != null && self.showCharacter >= self.CurrentMessage.text.Length)
             {
                 self.lingerCounter--;
+
                 if (RWInput.CheckSpecificButton(0, Plugin.MAP_ACTION, self.hud.rainWorld) && !Plugin.instance.dialogShouldTerminate)
                 {
                     Plugin.instance.dialogShouldTerminate = true;
