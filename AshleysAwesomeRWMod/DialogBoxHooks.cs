@@ -39,6 +39,10 @@ namespace AshleysAwesomeRWMod
                         {
                             self.InitNextMessage();
                         }
+                        else
+                        {
+                            Plugin.instance.dialogBox = null;
+                        }
                     }
                     return;
                 }
