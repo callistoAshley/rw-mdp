@@ -27,6 +27,7 @@ namespace AshleysAwesomeRWMod
                     self.showText = string.Empty;
                     if (self.sizeFac > 0)
                     {
+                        self.lastSizeFac = self.sizeFac;
                         self.sizeFac = Mathf.Max(0, self.sizeFac - 0.16666667f);
                     }
                     else

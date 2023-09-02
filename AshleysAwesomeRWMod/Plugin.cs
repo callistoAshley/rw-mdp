@@ -7,7 +7,7 @@ using MonoMod.RuntimeDetour;
 [assembly: SecurityPermission(SecurityAction.RequestMinimum, SkipVerification = true)]
 namespace AshleysAwesomeRWMod
 {
-    [BepInPlugin("ashleyn.manual_dialogue_progression", "Manual Dialogue Progression", "1.1")]
+    [BepInPlugin("ashleyn.manual_dialogue_progression", "Manual Dialogue Progression", "1.2")]
     public class Plugin : BaseUnityPlugin
     {
         public static Plugin instance; 
